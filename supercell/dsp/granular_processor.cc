@@ -337,29 +337,26 @@ void GranularProcessor::Process(
   if (silence_ || reset_buffers_ ||
       previous_playback_mode_ != playback_mode_) {
     short* output_samples = &output[0].l;
-    fill(&output_samples[0], &output_samples[size << 1], 0);
+    fill(&output_samples[0], &output_samples[size * 2], 0);
     return;
   }
 
-  // Convert input buffers to float, and mixdown for mono processing.
-  // SUPERCELL Handle Mute In separately
-  // TODO[pld] These loops look inefficient, we should be able to avoid unnecesary float/short conversions
-  float mute_level_in;
-  for (size_t i = 0; i < size; i++) {
-    if (mute_out_) {
-        mute_level_in = 0.0f;
-    } else {
-        mute_level_in = mute_in_ ? 0.0f : 1.0f;
-    }
-    mute_in_fade_ += 0.01f * (mute_level_in - mute_in_fade_);
-    input[i].l = input[i].l * mute_in_fade_;
-    input[i].r = input[i].r * mute_in_fade_;
-  }
+  // Convert input buffers to float
   for (size_t i = 0; i < size; ++i) {
     in_[i].l = static_cast<float>(input[i].l) / 32768.0f;
     in_[i].r = static_cast<float>(input[i].r) / 32768.0f;
   }
 
+  // SUPERCELL Handle Mute In separately
+  float mute_level_in = mute_in_ ? 0.0f : 1.0f;
+  float original_mute_in_fade = mute_in_fade_;
+  for (size_t i = 0; i < size; i++) {
+      ONE_POLE(mute_in_fade_, mute_level_in, 0.01f);
+      in_[i].l = in_[i].l * mute_in_fade_;
+      in_[i].r = in_[i].r * mute_in_fade_;
+  }
+
+  // mixdown for mono processing.
   if (num_channels_ == 1) {
     for (size_t i = 0; i < size; ++i) {
       float xfade = 0.5f;
@@ -474,42 +471,47 @@ void GranularProcessor::Process(
         &out_[0].r, &out_[0].r, size, 2);
   }
 
-  // SUPERCELL Added Pre-Reverb Muting.
-  float mute_level_out;
-  for (size_t i = 0; i < size; i++) {
-      if (mute_out_) {
-        //mute_level_in = 0.0f;
-        mute_level_out = 0.0f;
-      } else {
-        mute_level_out = 1.0f;
-        //mute_level_in = mute_in_ ? 0.0f : 1.0f;
-      }
-      mute_out_fade_ += 0.01f * (mute_level_out - mute_out_fade_);
-      //mute_in_fade_ += 0.01f * (mute_level_in - mute_in_fade_);
-      out_[i].l = out_[i].l * mute_out_fade_;
-      out_[i].r = out_[i].r * mute_out_fade_;
-      //input[i].l = input[i].l * mute_in_fade_;
-      //input[i].r = input[i].r * mute_in_fade_;
-  }
-  
   // This is what is fed back. Reverb is not fed back.
   copy(&out_[0], &out_[size], &fb_[0]);
+
+  // SUPERCELL Added Pre-Reverb Muting.
+  float mute_level_out = mute_out_ ? 0.0f : 1.0f;
+  float original_mute_out_fade = mute_out_fade_;
+  for (size_t i = 0; i < size; i++) {
+      ONE_POLE(mute_out_fade_, mute_level_out, 0.01f);
+      out_[i].l *= mute_out_fade_;
+      out_[i].r *= mute_out_fade_;
+  }
 
   const float post_gain = 1.2f;
 
   if (playback_mode_ != PLAYBACK_MODE_RESONESTOR) {
+
     ParameterInterpolator dry_wet_mod(&dry_wet_, parameters_.dry_wet, size);
+    float mute_out_fade = original_mute_out_fade;
+    float mute_in_fade = original_mute_in_fade;
+
     for (size_t i = 0; i < size; ++i) {
       float dry_wet = dry_wet_mod.Next();
       if (playback_mode_ == PLAYBACK_MODE_KAMMERL) {
         dry_wet = 1.0f;
       }
+
       float fade_in = Interpolate(lut_xfade_in, dry_wet, 16.0f);
       float fade_out = Interpolate(lut_xfade_out, dry_wet, 16.0f);
+
+      // Convert again from input, as in_ has feedback already applied
       float l = static_cast<float>(input[i].l) / 32768.0f;
       float r = static_cast<float>(input[i].r) / 32768.0f;
-      out_[i].l = l * fade_out + out_[i].l * post_gain * fade_in;
-      out_[i].r = r * fade_out + out_[i].r * post_gain * fade_in;
+
+      // Since the data here has bypassed all the mute logic, reapply mutes
+      ONE_POLE(mute_out_fade, mute_level_out, 0.01f);
+      ONE_POLE(mute_in_fade, mute_level_in, 0.01f);
+      fade_out *= (mute_in_fade * mute_out_fade);
+      
+
+      out_[i].l = (l * fade_out) + (out_[i].l * post_gain * fade_in);
+      out_[i].r = (r * fade_out) + (out_[i].r * post_gain * fade_in);
     }
   }
 
