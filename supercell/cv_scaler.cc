@@ -209,22 +209,10 @@ void CvScaler::Read(Parameters* parameters) {
     parameters->freeze = false;
   }
 
-  /*
-  parameters->trigger = previous_trigger_[0];
-  parameters->gate = previous_gate_[0];
-  for (int i = 0; i < kAdcLatency - 1; ++i) {
-    previous_trigger_[i] = previous_trigger_[i + 1];
-    previous_gate_[i] = previous_gate_[i + 1];
-  }
-  previous_trigger_[kAdcLatency - 1] = gate_input_.trigger_rising_edge();
-  previous_gate_[kAdcLatency - 1] = gate_input_.gate();
-  */
-
   parameters->capture = previous_capture_[0] | capture_button_flag_;
-  if (capture_button_flag_ == true) {
-    capture_button_flag_ = false;
-  }
+  capture_button_flag_ = false;
   parameters->gate = previous_gate_[0];
+
   for (int i = 0; i < kAdcLatency - 1; ++i) {
     previous_capture_[i] = previous_capture_[i + 1];
     previous_gate_[i] = previous_gate_[i + 1];
@@ -233,6 +221,5 @@ void CvScaler::Read(Parameters* parameters) {
   previous_gate_[kAdcLatency - 1] = gate_input_.gate();
   
   adc_.Convert();
-//}
 }
 }  // namespace clouds
