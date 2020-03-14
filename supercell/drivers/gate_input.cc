@@ -48,15 +48,15 @@ void GateInput::Init() {
 
 
   freeze_ = false;
-  capture_ = false;
+  trigger_ = false;
   previous_freeze_ = false;
-  previous_capture_ = false;
+  previous_trigger_ = false;
 }
 
 void GateInput::Read() {
   previous_freeze_ = freeze_;
-  previous_capture_ = capture_;
-  capture_ = !GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_14);
+  previous_trigger_ = trigger_;
+  trigger_ = !GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_14);
   freeze_ = !GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_13);
   
 }

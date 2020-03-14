@@ -190,7 +190,7 @@ void GranularProcessor::ProcessGranular(
           0.0f, // feedback;
           0.0f, // reverb;
           0.0f, // freeze;
-          parameters_.capture, // trigger;
+          parameters_.trigger, // trigger;
           0.0f // gate;
         };
 
@@ -248,7 +248,7 @@ void GranularProcessor::ProcessGranular(
 
       resonestor_.set_pitch(parameters_.pitch);
       resonestor_.set_chord(parameters_.size);
-      resonestor_.set_trigger(parameters_.capture);
+      resonestor_.set_trigger(parameters_.trigger);
       resonestor_.set_burst_damp(parameters_.position);
       resonestor_.set_burst_comb((1.0f - parameters_.position));
       resonestor_.set_burst_duration((1.0f - parameters_.position));

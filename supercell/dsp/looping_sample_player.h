@@ -87,7 +87,7 @@ class LoopingSamplePlayer {
       tap_delay_counter_ = 0;
       synchronized_ = false;
     }
-    if (parameters.capture) {
+    if (parameters.trigger) {
       if(tap_delay_counter_ > 128) {
         synchronized_ = true;
         tap_delay_ = tap_delay_counter_;

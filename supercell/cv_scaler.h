@@ -84,11 +84,11 @@ class CvScaler {
   }
   
   inline bool gate(size_t index) const {
-    return index == 0 ? gate_input_.freeze() : gate_input_.capture();
+    return index == 0 ? gate_input_.freeze() : gate_input_.trigger();
   }
 
-  inline void set_capture_flag() {
-    capture_button_flag_ = true;
+  inline void set_trigger_flag() {
+    trigger_button_flag_ = true;
   }
 
   inline float output_level() const {
@@ -107,7 +107,7 @@ class CvScaler {
   PotsAdc pots_adc_;
   GateInput gate_input_;
   CalibrationData* calibration_data_;
-  bool capture_button_flag_;
+  bool trigger_button_flag_;
   
   float smoothed_adc_value_[ADC_CHANNELS_TOTAL];
   static CvTransformation transformations_[ADC_CHANNELS_TOTAL];
@@ -117,7 +117,7 @@ class CvScaler {
 
   float output_level_; // Added for better VU meter control.
   
-  bool previous_capture_[kAdcLatency];
+  bool previous_trigger_[kAdcLatency];
   bool previous_gate_[kAdcLatency];
   
   DISALLOW_COPY_AND_ASSIGN(CvScaler);

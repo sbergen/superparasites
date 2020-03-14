@@ -45,7 +45,7 @@ struct Parameters {
   float reverb;
   
   bool freeze;
-  bool capture;
+  bool trigger;
   bool gate;
   
   struct Granular {

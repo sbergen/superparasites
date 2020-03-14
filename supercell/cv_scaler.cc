@@ -98,7 +98,7 @@ void CvScaler::Init(CalibrationData* calibration_data) {
   fill(&smoothed_adc_value_[0], &smoothed_adc_value_[ADC_CHANNELS_TOTAL], 0.0f);
   note_ = 0.0f;
   
-  fill(&previous_capture_[0], &previous_capture_[kAdcLatency], false);
+  fill(&previous_trigger_[0], &previous_trigger_[kAdcLatency], false);
   fill(&previous_gate_[0], &previous_gate_[kAdcLatency], false);
 }
 
@@ -209,15 +209,15 @@ void CvScaler::Read(Parameters* parameters) {
     parameters->freeze = false;
   }
 
-  parameters->capture = previous_capture_[0] | capture_button_flag_;
-  capture_button_flag_ = false;
+  parameters->trigger = previous_trigger_[0] | trigger_button_flag_;
+  trigger_button_flag_ = false;
   parameters->gate = previous_gate_[0];
 
   for (int i = 0; i < kAdcLatency - 1; ++i) {
-    previous_capture_[i] = previous_capture_[i + 1];
+    previous_trigger_[i] = previous_trigger_[i + 1];
     previous_gate_[i] = previous_gate_[i + 1];
   }
-  previous_capture_[kAdcLatency - 1] = gate_input_.capture_rising_edge();
+  previous_trigger_[kAdcLatency - 1] = gate_input_.trigger_rising_edge();
   previous_gate_[kAdcLatency - 1] = gate_input_.gate();
   
   adc_.Convert();

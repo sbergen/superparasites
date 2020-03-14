@@ -98,7 +98,7 @@ void STFT::Process(
     size_t size,
     size_t stride) {
   parameters_ = &parameters;
-  trigger_received_ |= parameters_->capture;
+  trigger_received_ |= parameters_->trigger;
 
   while (size) {
     size_t processed = min(size, hop_size_ - block_size_);
