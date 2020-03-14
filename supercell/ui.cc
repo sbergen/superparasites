@@ -326,9 +326,7 @@ void Ui::OnSwitchReleased(const Event& e) {
       }
       break;
     case SWITCH_TRIGGER:
-      if (e.data >= kLongPressDuration) {
-        //mode_ = UI_MODE_CALIBRATION_1; // now checked in Init()
-      } else if (mode_ == UI_MODE_CALIBRATION_1) {
+      if (mode_ == UI_MODE_CALIBRATION_1) {
         if (!skip_first_cal_press_) {
             CalibrateC1();
         } else {
