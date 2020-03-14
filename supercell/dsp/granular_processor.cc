@@ -483,6 +483,21 @@ void GranularProcessor::Process(
       out_[i].r *= mute_out_fade_;
   }
 
+  if (!reverb_dry_signal_ &&
+      playback_mode_ != PLAYBACK_MODE_OLIVERB &&
+      playback_mode_ != PLAYBACK_MODE_RESONESTOR &&
+      playback_mode_ != PLAYBACK_MODE_KAMMERL) {
+    // Apply reverb.
+    float reverb_amount = parameters_.reverb;
+
+    reverb_.set_amount(reverb_amount * 0.54f);
+    reverb_.set_diffusion(0.7f);
+    reverb_.set_time(0.35f + 0.63f * reverb_amount);
+    reverb_.set_input_gain(0.2f);
+    reverb_.set_lp(0.6f + 0.37f * feedback);
+    reverb_.Process(out_, size);
+  }
+
   const float post_gain = 1.2f;
 
   if (playback_mode_ != PLAYBACK_MODE_RESONESTOR) {
@@ -508,7 +523,6 @@ void GranularProcessor::Process(
       ONE_POLE(mute_out_fade, mute_level_out, 0.01f);
       ONE_POLE(mute_in_fade, mute_level_in, 0.01f);
       fade_out *= (mute_in_fade * mute_out_fade);
-      
 
       out_[i].l = (l * fade_out) + (out_[i].l * post_gain * fade_in);
       out_[i].r = (r * fade_out) + (out_[i].r * post_gain * fade_in);
@@ -516,7 +530,8 @@ void GranularProcessor::Process(
   }
 
   // Apply the simple post-processing reverb.
-  if (playback_mode_ != PLAYBACK_MODE_OLIVERB &&
+  if (reverb_dry_signal_ &&
+      playback_mode_ != PLAYBACK_MODE_OLIVERB &&
       playback_mode_ != PLAYBACK_MODE_RESONESTOR &&
       playback_mode_ != PLAYBACK_MODE_KAMMERL) {
     float reverb_amount = parameters_.reverb;

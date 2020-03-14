@@ -422,6 +422,8 @@ void Ui::OnSwitchReleased(const Event& e) {
             if (e.data < kLongPressDuration) {
                 bool mute_state = processor_->mute_in();
                 processor_->set_mute_in(!mute_state);
+            } else {
+                processor_->set_reverb_dry_signal(!processor_->reverb_dry_signal());
             }
         }
         break;
