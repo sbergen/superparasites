@@ -68,6 +68,7 @@ void GranularProcessor::Init(
   mute_in_fade_ = 0.0f;
   mute_out_fade_ = 0.0f;
   dry_wet_ = 0.0f;
+  reverb_dry_signal_ = true;
 }
 
 void GranularProcessor::ResetFilters() {

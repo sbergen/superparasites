@@ -143,6 +143,8 @@ class Ui {
   bool mode_alt_menu_;
   uint32_t save_menu_time_;
   uint32_t mode_menu_time_;
+  uint32_t reverb_mode_time_;
+
   DISALLOW_COPY_AND_ASSIGN(Ui);
 };
 
