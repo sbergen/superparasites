@@ -132,6 +132,14 @@ class GranularProcessor {
     return bypass_;
   }
 
+  inline void set_reverb_dry_signal(bool reverb) {
+    reverb_dry_signal_ = reverb;
+  }
+
+  inline bool reverb_dry_signal() {
+    return reverb_dry_signal_;
+  }
+
   inline void set_mute_out(bool mute) {
     mute_out_ = mute;
   }
@@ -202,6 +210,7 @@ class GranularProcessor {
   
   bool silence_;
   bool bypass_;
+  bool reverb_dry_signal_;
   bool reset_buffers_;
   bool mute_in_;
   bool mute_out_;

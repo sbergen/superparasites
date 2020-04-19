@@ -76,6 +76,8 @@ void Ui::Init(
   mode_alt_menu_ = false;
   save_menu_time_ = 0;
   mode_menu_time_ = 0;
+  reverb_mode_time_ = 0;
+
   // Sanitize saved settings.
   processor_->set_quality(state.quality & 3);
   processor_->set_playback_mode(
@@ -173,6 +175,7 @@ void Ui::PaintLeds() {
   //fade = fade_ % 511;
   fade = (fade_ >> 1);
   fade = static_cast<uint16_t>(fade) * fade >> 8;
+
   switch (mode_) {
     case UI_MODE_SPLASH:
       {
@@ -192,11 +195,18 @@ void Ui::PaintLeds() {
           }
           int32_t output = lut_db[static_cast<int32_t>(out_scalar * static_cast<float>(outmeter_->peak()))>>7];
           //int32_t output = lut_db[outmeter_->peak() >> 5]; // LEFT IN PLACE FOR TESTING PURE OUTPUT LEVEL
-          leds_.PaintBar(lut_db[inmeter_->peak() >> 7], \
-            output, \
-            processor_->mute_in(), \
-            processor_->mute_out() \
-            );
+
+          // Blink mute in when reverb mode toggled
+          bool mute_in_state = processor_->mute_in();
+          if (clock - reverb_mode_time_ < 50) {
+            mute_in_state = !mute_in_state;
+          }
+
+          leds_.PaintBar(
+            lut_db[inmeter_->peak() >> 7],
+            output,
+            mute_in_state,
+            processor_->mute_out());
           uint8_t bright;
           for (uint8_t i = 0; i < 4; i++) {
             if (!mode_alt_menu_) {
@@ -204,7 +214,7 @@ void Ui::PaintLeds() {
                 int32_t changed_time = clock - quality_changed_time_;
                 if (bright == 255) {
                     if (quality_changed_time_ != 0 && changed_time < kQualityDurations[i]) {
-                        bright = blink == true ? 255 : 0;
+                        bright = blink ? 255 : 0;
                     } else {
                         quality_changed_time_ = 0;
                     }
@@ -404,16 +414,14 @@ void Ui::OnSwitchReleased(const Event& e) {
             if (e.data < kLongPressDuration) {
                 bool mute_state = processor_->mute_out();
                 processor_->set_mute_out(!mute_state);
-            } else if (e.data >= kVeryLongPressDuration) {
-                if (switches_.pressed(SWITCH_MUTE_IN)) {
-                    bool dac_state = dac_.is_generating_noise();
-                    if (dac_state) {
-                        dac_.StopNoise();
-                    } else {
-                        dac_.StartNoise();
-                    }
-                    SaveState();
+            } else if (e.data >= kVeryLongPressDuration &&
+              switches_.pressed(SWITCH_MUTE_IN)) {
+                if (dac_.is_generating_noise()) {
+                    dac_.StopNoise();
+                } else {
+                    dac_.StartNoise();
                 }
+                SaveState();
             }
         }
         break;
@@ -422,6 +430,9 @@ void Ui::OnSwitchReleased(const Event& e) {
             if (e.data < kLongPressDuration) {
                 bool mute_state = processor_->mute_in();
                 processor_->set_mute_in(!mute_state);
+            } else {
+                processor_->set_reverb_dry_signal(!processor_->reverb_dry_signal());
+                reverb_mode_time_ = system_clock.milliseconds();
             }
         }
         break;
