@@ -350,7 +350,6 @@ void GranularProcessor::Process(
 
   // SUPERCELL Handle Mute In separately
   float mute_level_in = mute_in_ ? 0.0f : 1.0f;
-  float original_mute_in_fade = mute_in_fade_;
   for (size_t i = 0; i < size; i++) {
       ONE_POLE(mute_in_fade_, mute_level_in, 0.01f);
       in_[i].l = in_[i].l * mute_in_fade_;
@@ -477,7 +476,6 @@ void GranularProcessor::Process(
 
   // SUPERCELL Added Pre-Reverb Muting.
   float mute_level_out = mute_out_ ? 0.0f : 1.0f;
-  float original_mute_out_fade = mute_out_fade_;
   for (size_t i = 0; i < size; i++) {
       ONE_POLE(mute_out_fade_, mute_level_out, 0.01f);
       out_[i].l *= mute_out_fade_;
@@ -504,8 +502,6 @@ void GranularProcessor::Process(
   if (playback_mode_ != PLAYBACK_MODE_RESONESTOR) {
 
     ParameterInterpolator dry_wet_mod(&dry_wet_, parameters_.dry_wet, size);
-    float mute_out_fade = original_mute_out_fade;
-    float mute_in_fade = original_mute_in_fade;
 
     for (size_t i = 0; i < size; ++i) {
       float dry_wet = dry_wet_mod.Next();
@@ -519,11 +515,6 @@ void GranularProcessor::Process(
       // Convert again from input, as in_ has feedback already applied
       float l = static_cast<float>(input[i].l) / 32768.0f;
       float r = static_cast<float>(input[i].r) / 32768.0f;
-
-      // Since the data here has bypassed all the mute logic, reapply mutes
-      ONE_POLE(mute_out_fade, mute_level_out, 0.01f);
-      ONE_POLE(mute_in_fade, mute_level_in, 0.01f);
-      fade_out *= (mute_in_fade * mute_out_fade);
 
       out_[i].l = (l * fade_out) + (out_[i].l * post_gain * fade_in);
       out_[i].r = (r * fade_out) + (out_[i].r * post_gain * fade_in);
