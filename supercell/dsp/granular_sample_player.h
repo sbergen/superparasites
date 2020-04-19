@@ -188,19 +188,20 @@ class GranularSamplePlayer {
     float grain_size = Interpolate(lut_grain_size, parameters.size, 256.0f);
     float pitch_ratio = SemitonesToRatio(pitch);
     float inv_pitch_ratio = SemitonesToRatio(-pitch);
-    float pan = 0.5f + parameters.stereo_spread * (Random::GetFloat() - 0.5f);
-    float gain_l, gain_r;
+    PanningParameters pan_params = {};
     if (num_channels_ == 1) {
-      gain_l = Interpolate(lut_sin, pan, 256.0f);
-      gain_r = Interpolate(lut_sin + 256, pan, 256.0f);
+      float pan = 0.5f + parameters.stereo_spread * (Random::GetFloat() - 0.5f);
+      pan_params.l_to_l = Interpolate(lut_sin, pan, 256.0f);
+      pan_params.l_to_r = Interpolate(lut_sin + 256, pan, 256.0f);
     } else {
-      if (pan < 0.5f) {
-        gain_l = 1.0f;
-        gain_r = 2.0f * pan;
-      } else {
-        gain_r = 1.0f;
-        gain_l = 2.0f * (1.0f - pan);
-      }
+      float offset = parameters.stereo_spread * (Random::GetFloat());
+
+      pan_params.l_to_l = Interpolate(lut_sin + 256, offset, 256.0f);
+      pan_params.l_to_r = Interpolate(lut_sin, offset, 256.0f);
+
+      offset = parameters.stereo_spread * (Random::GetFloat());
+      pan_params.r_to_r = Interpolate(lut_sin + 256, offset, 256.0f);
+      pan_params.r_to_l = Interpolate(lut_sin, offset, 256.0f);
     }
     
     if (pitch_ratio > 1.0f) {
@@ -231,11 +232,11 @@ class GranularSamplePlayer {
         reverse,
         static_cast<uint32_t>(pitch_ratio * 65536.0f),
         window_shape,
-        gain_l,
-        gain_r,
+        pan_params,
         quality);
 
     ONE_POLE(grain_size_hint_, grain_size, 0.1f);
+    //grain_size_hint_ = grain_size;
   }
   
   int32_t max_num_grains_;

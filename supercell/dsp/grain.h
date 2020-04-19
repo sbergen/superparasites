@@ -34,6 +34,7 @@
 #include "stmlib/dsp/dsp.h"
 
 #include "supercell/dsp/audio_buffer.h"
+#include "supercell/dsp/panning_parameters.h"
 
 #include "supercell/resources.h"
 
@@ -77,8 +78,7 @@ class Grain {
       bool reverse,
       int32_t phase_increment,
       float window_shape,
-      float gain_l,
-      float gain_r,
+      PanningParameters panning_parameters,
       GrainQuality recommended_quality) {
     pre_delay_ = pre_delay;
     reverse_ = reverse;
@@ -101,8 +101,7 @@ class Grain {
     envelope_bias_ = InterpolatePlateau(bias_response, window_shape, 3);
 
     active_ = true;
-    gain_l_ = gain_l;
-    gain_r_ = gain_r;
+    panning_parameters_ = panning_parameters;
     recommended_quality_ = recommended_quality;
   }
   
@@ -150,8 +149,7 @@ class Grain {
 
     const int32_t phase_increment = phase_increment_;
     const int32_t first_sample = first_sample_;
-    const float gain_l = gain_l_;
-    const float gain_r = gain_r_;
+    const PanningParameters pan = panning_parameters_;
     int32_t phase = phase_;
     while (size--) {
       int32_t sample_index = first_sample + (phase >> 16);
@@ -165,13 +163,13 @@ class Grain {
       float l = buffer[0].template Read<InterpolationMethod(quality)>(
           sample_index, phase & 65535) * gain;
       if (num_channels == 1) {
-        *destination++ += l * gain_l;
-        *destination++ += l * gain_r;
+        *destination++ += l * pan.l_to_l;
+        *destination++ += l * pan.l_to_r;
       } else if (num_channels == 2) {
         float r = buffer[1].template Read<InterpolationMethod(quality)>(
             sample_index, phase & 65535) * gain;
-        *destination++ += l * gain_l + r * (1.0f - gain_r);
-        *destination++ += r * gain_r + l * (1.0f - gain_l);
+        *destination++ += l * pan.l_to_l + r * pan.r_to_l;
+        *destination++ += r * pan.r_to_r + l * pan.l_to_r;
       }
       phase += phase_increment;
     }
@@ -195,8 +193,7 @@ class Grain {
   float envelope_phase_;
   float envelope_phase_increment_;
 
-  float gain_l_;
-  float gain_r_;
+  PanningParameters panning_parameters_;
 
   bool active_;
   bool reverse_;
