@@ -725,12 +725,8 @@ void GranularProcessor::Prepare() {
         }
       }
 
-      // TODO: check diff and revert to original grain count (or even more?)
-      // since Supercell/Typhoon should have the memory needed?
-      // int32_t num_grains = (num_channels_ == 1 ? 40 : 32) *
-      //   (low_fidelity_ ? 23 : 16) >> 4;
-      int32_t num_grains = (num_channels_ == 1 ? 32 : 26) *
-          (low_fidelity_ ? 20 : 16) >> 4;
+      int32_t num_grains = (num_channels_ == 1 ? 40 : 32) *
+         (low_fidelity_ ? 23 : 16) >> 4;
       player_.Init(num_channels_, num_grains);
       ws_player_.Init(&correlator_, num_channels_);
       looper_.Init(num_channels_);

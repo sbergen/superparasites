@@ -46,11 +46,7 @@
 
 namespace clouds {
 
-
-// TODO: check diff and revert to original grain count (or even more?)
-// since Supercell/Typhoon should have the memory needed?
-// const int32_t kMaxNumGrains = 64;
-const int32_t kMaxNumGrains = 40;
+const int32_t kMaxNumGrains = 64;
 
 using namespace stmlib;
 
@@ -77,8 +73,7 @@ class GranularSamplePlayer {
       const Parameters& parameters,
       float* out, size_t size) {
     float overlap = parameters.granular.overlap;
-    // TODO, not sure I like the quadratic response, try reverting to cubic
-    overlap = (overlap * overlap) * (overlap * overlap);
+    overlap = overlap * overlap * overlap;
     float target_num_grains = max_num_grains_ * overlap;
     float p = target_num_grains / static_cast<float>(grain_size_hint_);
     float space_between_grains = grain_size_hint_ / target_num_grains;
@@ -240,9 +235,7 @@ class GranularSamplePlayer {
         gain_r,
         quality);
 
-    // TODO: Why was this smoothing removed?
-    //ONE_POLE(grain_size_hint_, grain_size, 0.1f);
-    grain_size_hint_ = grain_size;
+    ONE_POLE(grain_size_hint_, grain_size, 0.1f);
   }
   
   int32_t max_num_grains_;
