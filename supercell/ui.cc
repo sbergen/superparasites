@@ -1,6 +1,6 @@
-// Copyright 2014 Olivier Gillet.
+// Copyright 2014 Emilie Gillet.
 //
-// Author: Olivier Gillet (ol.gillet@gmail.com)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -59,7 +59,7 @@ void Ui::Init(
   processor_ = processor;
   inmeter_ = inmeter;
   outmeter_ = outmeter;
-  if (!switches_.pressed_immediate(SWITCH_CAPTURE)) {
+  if (!switches_.pressed_immediate(SWITCH_TRIGGER)) {
     mode_ = UI_MODE_CALIBRATION_1;
   } else {
     mode_ = UI_MODE_SPLASH;
@@ -139,14 +139,14 @@ void Ui::Poll() {
     mode_alt_menu_ = false;
   }
   // Rate Adjustment of Aux Random -- value updated on release
-  if (switches_.pressed(SWITCH_CAPTURE) && fabsf(cv_scaler_->pan_pot() - press_pan_pos_) > 0.05f) {
+  if (switches_.pressed(SWITCH_TRIGGER) && fabsf(cv_scaler_->pan_pot() - press_pan_pos_) > 0.05f) {
         //noise_freq_ = cv_scaler_->pan_pot();
         tracking_noise_ctrl_ = true;
   }
   // This needs to happen even if the button has been held for a while
   // a second release event doesn't seem to get thrown if the button is held
   // for a while (which is ideal for every other action).
-  if (switches_.released(SWITCH_CAPTURE) && tracking_noise_ctrl_) {
+  if (switches_.released(SWITCH_TRIGGER) && tracking_noise_ctrl_) {
     tracking_noise_ctrl_ = false;
     dac_.SetNoiseFreq(noise_freq_);
     SaveState();
@@ -285,8 +285,8 @@ void Ui::FlushEvents() {
 }
 
 void Ui::OnSwitchPressed(const Event& e) {
-  if (e.control_id == SWITCH_CAPTURE) {
-    cv_scaler_->set_capture_flag(); 
+  if (e.control_id == SWITCH_TRIGGER) {
+    cv_scaler_->set_trigger_flag(); 
     // Take note of pan position
     press_pan_pos_ = cv_scaler_->pan_pot();
   }
@@ -325,10 +325,8 @@ void Ui::OnSwitchReleased(const Event& e) {
         processor_->ToggleFreeze();
       }
       break;
-    case SWITCH_CAPTURE:
-      if (e.data >= kLongPressDuration) {
-        //mode_ = UI_MODE_CALIBRATION_1; // now checked in Init()
-      } else if (mode_ == UI_MODE_CALIBRATION_1) {
+    case SWITCH_TRIGGER:
+      if (mode_ == UI_MODE_CALIBRATION_1) {
         if (!skip_first_cal_press_) {
             CalibrateC1();
         } else {
@@ -387,7 +385,7 @@ void Ui::OnSwitchReleased(const Event& e) {
             last_load_save_location_ = load_save_location_;
         }
       } else {
-        if (switches_.pressed(SWITCH_CAPTURE)) {
+        if (switches_.pressed(SWITCH_TRIGGER)) {
             processor_->LoadPersistentData(settings_->sample_flash_data(
                 load_save_location_));
         } else {
@@ -497,7 +495,6 @@ uint8_t Ui::HandleFactoryTestingRequest(uint8_t command) {
         CalibrateC1();
       } else {
         CalibrateC3();
-        //cv_scaler_->set_blend_parameter(static_cast<BlendParameter>(0));
         SaveState();
       }
       break;

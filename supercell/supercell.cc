@@ -1,6 +1,6 @@
-// Copyright 2014 Olivier Gillet.
+// Copyright 2014 Emilie Gillet.
 // 
-// Author: Olivier Gillet (ol.gillet@gmail.com)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,6 @@ GranularProcessor processor;
 Codec codec;
 DebugPort debug_port;
 CvScaler cv_scaler;
-//Meter meter;
 Meter in_meter;
 Meter out_meter;
 Settings settings;
@@ -95,7 +94,6 @@ void FillBuffer(Codec::Frame* input, Codec::Frame* output, size_t n) {
   in_meter.Process(input, n); // Process input meter before processing (avoids mutes, etc.)
   processor.Process((ShortFrame*)input, (ShortFrame*)output, n);
   out_meter.Process(output, n);
-  //meter.Process(processor.parameters().freeze ? output : input, n);
 #ifdef PROFILE_INTERRUPT
   TOC
 #endif  // PROFILE_INTERRUPT
@@ -115,7 +113,6 @@ void Init() {
 
   settings.Init();
   cv_scaler.Init(settings.mutable_calibration_data());
-  //meter.Init(32000);
   in_meter.Init(32000);
   out_meter.Init(32000);
   ui.Init(&settings, &cv_scaler, &processor, &in_meter, &out_meter);

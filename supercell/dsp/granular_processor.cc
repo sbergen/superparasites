@@ -1,6 +1,6 @@
-// Copyright 2014 Olivier Gillet.
+// Copyright 2014 Emilie Gillet.
 //
-// Author: Olivier Gillet (ol.gillet@gmail.com)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -190,7 +190,7 @@ void GranularProcessor::ProcessGranular(
           0.0f, // feedback;
           0.0f, // reverb;
           0.0f, // freeze;
-          parameters_.capture, // trigger;
+          parameters_.trigger, // trigger;
           0.0f // gate;
         };
 
@@ -248,7 +248,7 @@ void GranularProcessor::ProcessGranular(
 
       resonestor_.set_pitch(parameters_.pitch);
       resonestor_.set_chord(parameters_.size);
-      resonestor_.set_trigger(parameters_.capture);
+      resonestor_.set_trigger(parameters_.trigger);
       resonestor_.set_burst_damp(parameters_.position);
       resonestor_.set_burst_comb((1.0f - parameters_.position));
       resonestor_.set_burst_duration((1.0f - parameters_.position));
@@ -724,7 +724,12 @@ void GranularProcessor::Prepare() {
               tail_buffer_[i]);
         }
       }
-      int32_t num_grains = (num_channels_ == 1 ? 32 : 26) * \
+
+      // TODO: check diff and revert to original grain count (or even more?)
+      // since Supercell/Typhoon should have the memory needed?
+      // int32_t num_grains = (num_channels_ == 1 ? 40 : 32) *
+      //   (low_fidelity_ ? 23 : 16) >> 4;
+      int32_t num_grains = (num_channels_ == 1 ? 32 : 26) *
           (low_fidelity_ ? 20 : 16) >> 4;
       player_.Init(num_channels_, num_grains);
       ws_player_.Init(&correlator_, num_channels_);

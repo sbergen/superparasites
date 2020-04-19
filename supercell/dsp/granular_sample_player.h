@@ -1,6 +1,6 @@
-// Copyright 2014 Olivier Gillet.
+// Copyright 2014 Emilie Gillet.
 //
-// Author: Olivier Gillet (ol.gillet@gmail.com)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -46,6 +46,10 @@
 
 namespace clouds {
 
+
+// TODO: check diff and revert to original grain count (or even more?)
+// since Supercell/Typhoon should have the memory needed?
+// const int32_t kMaxNumGrains = 64;
 const int32_t kMaxNumGrains = 40;
 
 using namespace stmlib;
@@ -73,6 +77,7 @@ class GranularSamplePlayer {
       const Parameters& parameters,
       float* out, size_t size) {
     float overlap = parameters.granular.overlap;
+    // TODO, not sure I like the quadratic response, try reverting to cubic
     overlap = (overlap * overlap) * (overlap * overlap);
     float target_num_grains = max_num_grains_ * overlap;
     float p = target_num_grains / static_cast<float>(grain_size_hint_);
@@ -87,7 +92,7 @@ class GranularSamplePlayer {
     int32_t num_available_grains = FillAvailableGrainsList();
     
     // Try to schedule new grains.
-    bool seed_trigger = parameters.capture;
+    bool seed_trigger = parameters.trigger;
     for (size_t t = 0; t < size; ++t) {
       grain_rate_phasor_ += 1.0f;
       bool seed_probabilistic = Random::GetFloat() < p
@@ -234,6 +239,9 @@ class GranularSamplePlayer {
         gain_l,
         gain_r,
         quality);
+
+    // TODO: Why was this smoothing removed?
+    //ONE_POLE(grain_size_hint_, grain_size, 0.1f);
     grain_size_hint_ = grain_size;
   }
   

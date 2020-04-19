@@ -1,6 +1,6 @@
-// Copyright 2014 Olivier Gillet.
+// Copyright 2014 Emilie Gillet.
 //
-// Author: Olivier Gillet (ol.gillet@gmail.com)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -45,14 +45,9 @@ void Settings::Init() {
       data_.calibration_data.offset[i] = 0.505f;
     }
     data_.state.quality = 0;
-    //data_.state.blend_parameter = 0;
     data_.state.playback_mode = PLAYBACK_MODE_GRANULAR;
     data_.state.random_rate = 0.5f;
     data_.state.random_state = false;
-    //data_.state.blend_value[0] = 255;
-    //data_.state.blend_value[1] = 128;
-    //data_.state.blend_value[2] = 0;
-    //data_.state.blend_value[3] = 0;
     freshly_baked_ = true;
     Save();
   }

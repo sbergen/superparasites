@@ -1,6 +1,6 @@
-// Copyright 2014 Olivier Gillet.
+// Copyright 2014 Emilie Gillet.
 //
-// Author: Olivier Gillet (ol.gillet@gmail.com)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -98,7 +98,7 @@ void CvScaler::Init(CalibrationData* calibration_data) {
   fill(&smoothed_adc_value_[0], &smoothed_adc_value_[ADC_CHANNELS_TOTAL], 0.0f);
   note_ = 0.0f;
   
-  fill(&previous_capture_[0], &previous_capture_[kAdcLatency], false);
+  fill(&previous_trigger_[0], &previous_trigger_[kAdcLatency], false);
   fill(&previous_gate_[0], &previous_gate_[kAdcLatency], false);
 }
 
@@ -209,30 +209,17 @@ void CvScaler::Read(Parameters* parameters) {
     parameters->freeze = false;
   }
 
-  /*
-  parameters->trigger = previous_trigger_[0];
+  parameters->trigger = previous_trigger_[0] | trigger_button_flag_;
+  trigger_button_flag_ = false;
   parameters->gate = previous_gate_[0];
+
   for (int i = 0; i < kAdcLatency - 1; ++i) {
     previous_trigger_[i] = previous_trigger_[i + 1];
     previous_gate_[i] = previous_gate_[i + 1];
   }
   previous_trigger_[kAdcLatency - 1] = gate_input_.trigger_rising_edge();
   previous_gate_[kAdcLatency - 1] = gate_input_.gate();
-  */
-
-  parameters->capture = previous_capture_[0] | capture_button_flag_;
-  if (capture_button_flag_ == true) {
-    capture_button_flag_ = false;
-  }
-  parameters->gate = previous_gate_[0];
-  for (int i = 0; i < kAdcLatency - 1; ++i) {
-    previous_capture_[i] = previous_capture_[i + 1];
-    previous_gate_[i] = previous_gate_[i + 1];
-  }
-  previous_capture_[kAdcLatency - 1] = gate_input_.capture_rising_edge();
-  previous_gate_[kAdcLatency - 1] = gate_input_.gate();
   
   adc_.Convert();
-//}
 }
 }  // namespace clouds

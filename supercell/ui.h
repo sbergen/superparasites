@@ -1,6 +1,6 @@
-// Copyright 2014 Olivier Gillet.
+// Copyright 2014 Emilie Gillet.
 //
-// Author: Olivier Gillet (ol.gillet@gmail.com)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -58,7 +58,7 @@ enum UiMode {
 enum SwitchIndex {
   SWITCH_MODE,
   SWITCH_WRITE,
-  SWITCH_CAPTURE,
+  SWITCH_TRIGGER,
   SWITCH_FREEZE,
   SWITCH_MUTE_OUT,
   SWITCH_MUTE_IN

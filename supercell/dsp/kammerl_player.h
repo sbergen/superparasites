@@ -155,7 +155,7 @@ public:
 			num_samples_since_trigger_ = 0;
 			playback_mode_ = PLAYBACK_MODE_BYPASS;
 		}
-		if (parameters.capture
+		if (parameters.trigger
 				|| playback_mode_ == PLAYBACK_MODE_UNINITIALIZED) {
 			const int32_t latest_trigger_interval_samples =
 					num_samples_since_trigger_;

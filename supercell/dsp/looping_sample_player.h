@@ -1,6 +1,6 @@
-// Copyright 2014 Olivier Gillet.
+// Copyright 2014 Emilie Gillet.
 //
-// Author: Olivier Gillet (ol.gillet@gmail.com)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -87,7 +87,7 @@ class LoopingSamplePlayer {
       tap_delay_counter_ = 0;
       synchronized_ = false;
     }
-    if (parameters.capture) {
+    if (parameters.trigger) {
       if(tap_delay_counter_ > 128) {
         synchronized_ = true;
         tap_delay_ = tap_delay_counter_;

@@ -1,6 +1,6 @@
-// Copyright 2014 Olivier Gillet.
+// Copyright 2014 Emilie Gillet.
 //
-// Author: Olivier Gillet (ol.gillet@gmail.com)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -98,7 +98,7 @@ void STFT::Process(
     size_t size,
     size_t stride) {
   parameters_ = &parameters;
-  trigger_received_ |= parameters_->capture;
+  trigger_received_ |= parameters_->trigger;
 
   while (size) {
     size_t processed = min(size, hop_size_ - block_size_);
